@@ -3,4 +3,4 @@ builder = "NIXPACKS"
 buildCommand = "composer install --no-dev --optimize-autoloader && npm ci && npm run build"
 
 [deploy]
-preDeployCommand = "php artisan migrate --force"
+preDeployCommand = "php artisan migrate --force && php artisan db:seed --force"
