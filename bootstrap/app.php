@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Railway / nginx 等のリバースプロキシの X-Forwarded-* を信頼しないと
+        // HTTPS 判定・セッション Cookie・リダイレクト先 URL が壊れる
+        $middleware->trustProxies(at: '*');
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('books.index'));
     })
