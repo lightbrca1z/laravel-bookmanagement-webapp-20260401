@@ -23,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureRailwaySessionDriver();
         $this->configureSessionDriverWhenDatabaseUnavailable();
         $this->configurePublicUrlForHostedEnvironment();
 
@@ -32,6 +33,23 @@ class AppServiceProvider extends ServiceProvider
                 ->where('user_id', auth()->id())
                 ->firstOrFail();
         });
+    }
+
+    /**
+     * Railway では複数レプリカや一時ストレージの影響で file セッションがリクエスト間で共有されず、
+     * ログイン POST で CSRF トークル不一致（419）になりやすい。cookie ドライバは同一ホスト内で安定する。
+     * （getenv: config:cache 後も実環境の変数を参照できる）
+     */
+    private function configureRailwaySessionDriver(): void
+    {
+        $railwayEnv = getenv('RAILWAY_ENVIRONMENT');
+        if ($railwayEnv === false || $railwayEnv === '') {
+            return;
+        }
+
+        if (config('session.driver') === 'file') {
+            config(['session.driver' => 'cookie']);
+        }
     }
 
     /**
