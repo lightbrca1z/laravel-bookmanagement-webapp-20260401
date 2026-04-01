@@ -14,6 +14,7 @@ APP_ENV=production
 APP_KEY=base64:c7PqhDZ8cYaOlPwW5YpZLRMyaN6KkGm+oTAC+ivRzzU=
 APP_NAME="Laravel Book Management"
 APP_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}
+SESSION_DRIVER=file
 DB_CONNECTION=mysql
 DB_HOST=${MYSQLHOST}
 DB_PORT=${MYSQLPORT}
@@ -31,6 +32,7 @@ DB_COLLATION=utf8mb4_unicode_ci
 
 **重要：**
 - **`APP_URL`** は必ず HTTPS の公開 URL にしてください（上記の参照変数で可）。未設定や `localhost` のままだとログイン後に遷移しない・会員登録が失敗する原因になります（セッション・リダイレクト用）。
+- **`SESSION_DRIVER=database`** を使う場合は **`sessions` テーブル**用マイグレーション（`php artisan migrate`）が必須です。未作成だとログイン POST で 500 になります。迷ったら **`SESSION_DRIVER=file`**（または未指定でデフォルトの `file`）を推奨。
 - アプリ側ではリバースプロキシ対応（`trustProxies`）と Railway 公開ドメインの補正を入れていますが、**Variables で `APP_URL` を揃える**のが確実です。
 - MySQLサービスとLaravelサービスを接続してください（MySQLサービスを選択 → Connect → Laravelサービスを選択）
 - 接続後、`MYSQLHOST`、`MYSQLDATABASE`などの変数が自動的に利用可能になります
