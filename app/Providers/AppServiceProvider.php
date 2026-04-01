@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\Auth\LoginController;
 use App\Models\Book;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
@@ -23,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configurePublicUrlForHostedEnvironment();
+        $this->registerLoginRoutesIfMissing();
 
         Route::bind('book', function (string $value) {
             return Book::query()
@@ -36,6 +38,20 @@ class AppServiceProvider extends ServiceProvider
      * Railway 等: プロキシ越しの公開 URL と APP_URL のずれを補う。
      * （config:cache 後は env('APP_URL') が使えない場合があるため config を参照する）
      */
+    /**
+     * routes/web.php が未更新のデプロイ（初期 Laravel の welcome のみ等）でも /login を生やす。
+     */
+    private function registerLoginRoutesIfMissing(): void
+    {
+        if (! Route::has('login')) {
+            Route::middleware(['web', 'guest'])->get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+        }
+
+        if (! Route::has('login.attempt')) {
+            Route::middleware(['web', 'guest'])->post('/login', [LoginController::class, 'login'])->name('login.attempt');
+        }
+    }
+
     private function configurePublicUrlForHostedEnvironment(): void
     {
         $railwayDomain = env('RAILWAY_PUBLIC_DOMAIN');
