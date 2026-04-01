@@ -36,13 +36,17 @@ DB_COLLATION=utf8mb4_unicode_ci
 - 接続後、`MYSQLHOST`、`MYSQLDATABASE`などの変数が自動的に利用可能になります
 - `DB_CHARSET`と`DB_COLLATION`はデフォルト値がありますが、明示的に設定することを推奨します
 
-### 2. Build Command（Settingsタブ → Build）
+### 2. ビルド（Vite / CSS）
 
-Settingsタブの**Build Command**に以下を設定：
+リポジトリ直下の **`railway.toml`** で `npm ci && npm run build` を実行するよう定義済みです。`public/build` もコミットしているため、ビルドがスキップされても CSS は配信されます。
+
+ダッシュボードの **Build Command** を手動設定している場合は、次と同等になるよう調整するか、空にして `railway.toml` を優先してください：
 
 ```bash
-composer install --no-dev --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache
+composer install --no-dev --optimize-autoloader && npm ci && npm run build
 ```
+
+本番で `config:cache` を使う場合は **マイグレーション後** または Variables 確定後に実行してください（DB 未接続のビルド段階での `config:cache` は避ける）。
 
 ### 3. Deploy Command または Release Command（Settingsタブ → Deploy）
 
